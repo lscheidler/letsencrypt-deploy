@@ -12,7 +12,7 @@ Terraform module for deploying letsencrypt-deploy to an instance
 
 ```
 module "letsencrypt-deploy" {
-  source = "github.com/lscheidler/letsencrypt-deploy/terraform/deploy?ref=main"
+  source = "github.com/lscheidler/letsencrypt-deploy//terraform/deploy?ref=main"
 
   instance_ip = aws_instance.instance.private_ip
   instance_id = aws_instance.instance.id
