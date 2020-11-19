@@ -1,0 +1,98 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - block:
+        - name: add host to inventory
+          add_host:
+            hostname: "{{ instance_ip }}"
+            ansible_ssh_port: "{{ instance_port | default(omit) }}"
+            ansible_ssh_common_args: "-o CheckHostIP=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+            groups: 
+              - deploy
+
+- hosts: deploy
+  become: true
+  tasks:
+    - include_vars: letsencrypt-deploy.yml
+    - name: install unzip
+      apt:
+        name: unzip
+      when: ansible_distribution == "Debian"
+    - name: "download letsencrypt-deploy"
+      get_url:
+        url: "https://github.com/lscheidler/letsencrypt-deploy/releases/download/v{{ version }}/letsencrypt-deploy_v{{ version }}_linux_amd64.zip"
+        dest: "/opt/letsencrypt-deploy.zip"
+        checksum: "{{ checksum_type }}:{{ checksum }}"
+    - name: unarchive letsencrypt-deploy
+      unarchive:
+        src: /opt/letsencrypt-deploy.zip
+        dest: /usr/local/sbin
+        remote_src: true
+    - name: "make letsencrypt-deploy executable"
+      file:
+        path: /usr/local/sbin/letsencrypt-deploy
+        mode: "0755"
+
+    - name: create passphrase file
+      block:
+        - set_fact:
+            client_passphrase_value: "{{ lookup('vars', client_passphrase_key) }}"
+          when: client_passphrase_key is defined and client_passphrase_key != ""
+        - set_fact:
+            client_passphrase_value: "{{ client_passphrase }}"
+          when: client_passphrase is defined and client_passphrase != ""
+        - name: create config directory
+          file:
+            path: /etc/letsencrypt-deploy
+            mode: "0500"
+            state: directory
+        - name: create passphrase file
+          copy:
+            dest: /etc/letsencrypt-deploy/pass
+            mode: "0400"
+            content: "{{ client_passphrase_value }}"
+      when: client_passphrase is defined or client_passphrase_key is defined
+
+    - name: create systemd timer
+      block:
+        - name: create systemd service
+          copy:
+            dest: /etc/systemd/system/letsencrypt-deploy.service
+            content: |
+              [Unit]
+              Description=Service for letsencrypt-deploy
+              After=network.target
+              
+              [Service]
+              Type=simple
+              ExecStart=/usr/local/sbin/letsencrypt-deploy -domain "{{ domains }}" -email "{{ email }}" -passphraseFile /etc/letsencrypt-deploy/pass {{ additional_letsencrypt_deploy_arguments }}
+              
+              [Install]
+              WantedBy=multi-user.target
+          register: reg_created_systemd_service
+        - name: create systemd timer
+          copy:
+            dest: /etc/systemd/system/letsencrypt-deploy.timer
+            content: |
+              [Unit]
+              Description=Timer for letsencrypt-deploy
+              
+              [Timer]
+              OnCalendar=04:00
+              
+              [Install]
+              WantedBy=timers.target
+          register: reg_created_systemd_timer
+        - name: reload systemd
+          systemd:
+            name: basic.target
+            daemon_reload: true
+          when: reg_created_systemd_service is changed or reg_created_systemd_timer is changed
+        - name: start timer
+          systemd:
+            name: letsencrypt-deploy.timer
+            enabled: true
+            state: started
+      when: create_systemd_timer
