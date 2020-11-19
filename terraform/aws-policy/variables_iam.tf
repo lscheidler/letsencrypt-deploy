@@ -33,3 +33,8 @@ variable "aws_iam_policy_path" {
 variable "aws_dynamodb_table_arn" {
   type = string
 }
+
+variable "sns_topic" {
+  type    = list
+  default = []
+}

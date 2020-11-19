@@ -47,4 +47,18 @@ data "aws_iam_policy_document" "letsencrypt" {
       var.aws_dynamodb_table_arn,
     ]
   }
+
+  dynamic "statement" {
+    for_each = length(var.sns_topic) > 0 ? [1] : []
+
+    content {
+      effect = "Allow"
+
+      actions = [
+        "sns:Publish",
+      ]
+
+      resources = var.sns_topic
+    }
+  }
 }
