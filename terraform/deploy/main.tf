@@ -1,7 +1,7 @@
 resource "null_resource" "deploy" {
   triggers = {
     instance_id = var.instance_id
-    variables   = jsonencode(var.variables)
+    variables   = jsonencode(local.template_variables)
   }
 
   provisioner "local-exec" {
