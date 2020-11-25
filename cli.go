@@ -82,6 +82,7 @@ func (i *Hooks) Set(value string) error {
 }
 
 var (
+	delay                 int
 	domains               Domains
 	dynamodbTableName     *string
 	dynamodbTableNameFlag string
@@ -94,6 +95,8 @@ var (
 )
 
 const (
+	delayUsage                  = "deploy certificates with a delay after creation (days)"
+	delayDefaultVal             = 0
 	domainUsage                 = "domains"
 	dynamodbTableNameDefaultVal = ""
 	dynamodbTableNameUsage      = "dynamodb table name"
@@ -128,6 +131,7 @@ hooks:
 		fmt.Fprintf(flag.CommandLine.Output(), "%s\n", examples)
 	}
 
+	flag.IntVar(&delay, "delay", delayDefaultVal, delayUsage)
 	flag.Var(&domains, "domain", domainUsage)
 	flag.Var(&domains, "d", domainUsage)
 	flag.StringVar(&dynamodbTableNameFlag, "dynamodbTableName", dynamodbTableNameDefaultVal, dynamodbTableNameUsage)

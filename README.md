@@ -12,12 +12,13 @@ If You want to deploy the client with terraform, You need following tools:
 ## Usage
 
 ```
-./letsencrypt-deploy -h
-Usage of build/linux_amd64/letsencrypt-deploy (0.1):
+Usage of build/linux_amd64/letsencrypt-deploy (0.2):
   -H value
     	run hook after certificates has updated
   -d value
     	domains
+  -delay int
+    	deploy certificates with a delay after creation (days)
   -domain value
     	domains
   -dynamodbTableName string
@@ -54,4 +55,12 @@ hooks:
 
 ```
 ./letsencrypt-deploy -email me@example.com -domain example.com,*.example.com -passphraseFile /tmp/deploy.passphrase -o certificates/
+```
+
+### Production
+
+To delay the deployment of a renewed certificate for 10 days, e.g. for production server (deploying first to testing):
+
+```
+./letsencrypt-deploy -delay 10 -email me@example.com -domain example.com,*.example.com -passphraseFile /tmp/deploy.passphrase -o certificates/
 ```

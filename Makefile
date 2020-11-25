@@ -17,7 +17,7 @@ dist: clean build
 	cd dist && sha512sum *.zip > letsencrypt-deploy_$(VERSION)_SHA512SUM.txt
 
 clean:
-	rm -rf dist
+	rm -rf build dist
 
 sign:
 	gpg --armor --sign --detach-sig dist/letsencrypt-deploy_$(VERSION)_linux_amd64.zip

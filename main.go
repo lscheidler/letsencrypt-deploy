@@ -19,6 +19,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/lscheidler/letsencrypt-lambda/account"
 	"github.com/lscheidler/letsencrypt-lambda/dynamodb"
@@ -41,12 +42,16 @@ func main() {
 	dynamodb.LoadAccount(account)
 
 	if cert := account.Certificates[fmt.Sprintf("%v", domains)]; cert != nil {
-		if string(cert.Pem) != string(readLocalCertificate()) {
-			writeCertificate(cert)
-			rewriteLinks(cert)
-			executeHooks()
+		if hours := time.Now().Sub(cert.CreatedAt).Hours(); hours > float64(delay*24) {
+			if string(cert.Pem) != string(readLocalCertificate()) {
+				writeCertificate(cert)
+				rewriteLinks(cert)
+				executeHooks()
+			} else {
+				log.Println("Local certificate already uptodate.")
+			}
 		} else {
-			log.Println("Local certificate already uptodate.")
+			log.Printf("New certificate is %d days old. Skipping deployment because of delay=%d.\n", int(hours/24), delay)
 		}
 	} else {
 		log.Printf("No certificate for %v found.", domains)
