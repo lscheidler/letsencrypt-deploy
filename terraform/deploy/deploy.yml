@@ -15,16 +15,15 @@
 - hosts: deploy
   become: true
   tasks:
-    - include_vars: letsencrypt-deploy.yml
     - name: install unzip
       apt:
         name: unzip
       when: ansible_distribution == "Debian"
     - name: "download letsencrypt-deploy"
       get_url:
-        url: "https://github.com/lscheidler/letsencrypt-deploy/releases/download/v{{ version }}/letsencrypt-deploy_v{{ version }}_linux_amd64.zip"
+        url: "https://github.com/lscheidler/letsencrypt-deploy/releases/download/v{{ letsencrypt_deploy_version }}/letsencrypt-deploy_v{{ letsencrypt_deploy_version }}_linux_amd64.zip"
         dest: "/opt/letsencrypt-deploy.zip"
-        checksum: "{{ checksum_type }}:{{ checksum }}"
+        checksum: "{{ letsencrypt_deploy_checksum_type }}:{{ letsencrypt_deploy_checksum }}"
     - name: unarchive letsencrypt-deploy
       unarchive:
         src: /opt/letsencrypt-deploy.zip

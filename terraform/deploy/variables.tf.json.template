@@ -1,0 +1,13 @@
+{
+  "variable": {
+    "letsencrypt_deploy_version": {
+      "default": "<version>"
+    },
+    "letsencrypt_deploy_checksum_type": {
+      "default": "sha512"
+    },
+    "letsencrypt_deploy_checksum": {
+      "default": "<checksum>"
+    }
+  }
+}

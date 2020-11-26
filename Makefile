@@ -1,4 +1,5 @@
-VERSION := v$(shell egrep "version *=" version.go | cut -d '"' -f 2)
+VERSION := $(shell egrep "version *=" version.go | cut -d '"' -f 2)
+GITHUB_VERSION := v$(VERSION)
 
 all: build
 
@@ -11,21 +12,24 @@ vet:
 build: fmt vet
 	go build -asmflags -trimpath -o build/linux_amd64/letsencrypt-deploy
 
-dist: clean build
+zip:
 	mkdir dist
-	zip -j dist/letsencrypt-deploy_$(VERSION)_linux_amd64.zip build/linux_amd64/letsencrypt-deploy
-	cd dist && sha512sum *.zip > letsencrypt-deploy_$(VERSION)_SHA512SUM.txt
+	zip -j dist/letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip build/linux_amd64/letsencrypt-deploy
+
+dist: clean build zip
+	cd dist && sha512sum *.zip > letsencrypt-deploy_$(GITHUB_VERSION)_SHA512SUM.txt
+	sed -e "s/<version>/$(VERSION)/g" -e "s/<checksum>/$(shell sha512sum dist/letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip | cut -d " " -f 1)/g" terraform/deploy/variables.tf.json.template > terraform/deploy/variables.tf.json
 
 clean:
 	rm -rf build dist
 
 sign:
-	gpg --armor --sign --detach-sig dist/letsencrypt-deploy_$(VERSION)_linux_amd64.zip
+	gpg --armor --sign --detach-sig dist/letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip
 
 release:
 	@echo "| File | Sign  | SHA512SUM |"
 	@echo "|------|-------|-----------|"
-	@echo "| [letsencrypt-deploy_$(VERSION)_linux_amd64.zip](../../releases/download/$(VERSION)/letsencrypt-deploy_$(VERSION)_linux_amd64.zip) | [letsencrypt-deploy_$(VERSION)_linux_amd64.zip.asc](../../releases/download/$(VERSION)/letsencrypt-deploy_$(VERSION)_linux_amd64.zip.asc) | $(shell sha512sum dist/letsencrypt-deploy_$(VERSION)_linux_amd64.zip | cut -d " " -f 1) |"
+	@echo "| [letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip](../../releases/download/$(GITHUB_VERSION)/letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip) | [letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip.asc](../../releases/download/$(GITHUB_VERSION)/letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip.asc) | $(shell sha512sum dist/letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip | cut -d " " -f 1) |"
 
 run:
 	#echo <secure_client_passphrase> > /tmp/deploy.passphrase
