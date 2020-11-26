@@ -27,6 +27,11 @@ variable "dependencies" {
   default = []
 }
 
+variable "delay" {
+  type    = string
+  default = ""
+}
+
 variable "domains" {}
 
 variable "email" {}

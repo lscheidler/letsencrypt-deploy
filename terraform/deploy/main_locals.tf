@@ -6,6 +6,7 @@ locals {
     local.ansible_args_vault_file,
   ])
 
+  letsencrypt_deploy_arguments_delay           = (var.delay != "") ? "-delay ${var.delay}" : ""
   letsencrypt_deploy_arguments_hook            = join(" ", formatlist("-hook \"%s\"", var.hooks))
   letsencrypt_deploy_arguments_output_location = (var.output_location != "") ? "-o ${var.output_location}" : ""
 
@@ -19,9 +20,12 @@ locals {
     letsencrypt_deploy_version       = var.letsencrypt_deploy_version,
     letsencrypt_deploy_checksum_type = var.letsencrypt_deploy_checksum_type
     letsencrypt_deploy_checksum      = var.letsencrypt_deploy_checksum
-    additional_letsencrypt_deploy_arguments = join(" ", [
-      local.letsencrypt_deploy_arguments_output_location,
-      local.letsencrypt_deploy_arguments_hook,
-    ]),
+    additional_letsencrypt_deploy_arguments = join(" ",
+      compact([
+        local.letsencrypt_deploy_arguments_output_location,
+        local.letsencrypt_deploy_arguments_hook,
+        local.letsencrypt_deploy_arguments_delay,
+      ])
+    ),
   }
 }
