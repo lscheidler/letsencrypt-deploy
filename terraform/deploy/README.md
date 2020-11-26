@@ -22,6 +22,7 @@ module "letsencrypt-deploy" {
     null_resource.prerequirement.id,
   ]
 
+  #delay           = "10"
   domains         = "example.com,*.example.com"
   email           = "me@example.com"
   hooks = [
@@ -52,6 +53,7 @@ It is going to deploy and configure
 | `client_passphrase`                     | 🗷         | `""`                                      | this argument or `client_passphrase_key` should be set  |
 | `client_passphrase_key`                 | 🗷         | `""`                                      |                                                         |
 | `create_systemd_timer`                  | 🗷         | `true`                                    |                                                         |
-| `dependencies`                          | 🗷         | `[]`                                      |                                                         |
-| `hooks`                                 | 🗷         | `[]`                                      |                                                         |
-| `output_location`                       | 🗷         | `""`                                      |                                                         |
+| `delay`                                 | 🗷         | `""`                                      | set delay argument for letsencrypt-deploy               |
+| `dependencies`                          | 🗷         | `[]`                                      | add additional dependencies to wait for                 |
+| `hooks`                                 | 🗷         | `[]`                                      | add hooks                                               |
+| `output_location`                       | 🗷         | `""`                                      | set `output_location` for letsencrypt-deploy            |
