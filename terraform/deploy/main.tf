@@ -5,6 +5,16 @@ resource "null_resource" "deploy" {
   }
 
   provisioner "local-exec" {
-    command = data.template_file.deploy.rendered
+    command = join(" ", [
+      "ansible-playbook",
+      local.ansible_args,
+      "${path.module}/deploy.yml",
+      "-e",
+      join("", [
+        "'",
+        jsonencode(local.template_variables),
+        "'",
+      ]),
+    ])
   }
 }

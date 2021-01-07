@@ -14,8 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package v2
 
-const (
-	version = "0.3"
-)
+type ServerCert struct {
+	QOriginKey *string `json:"q_origin_key"`
+	Name       *string `json:"name"`
+	Datasource *string `json:"datasource"`
+}

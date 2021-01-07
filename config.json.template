@@ -1,0 +1,19 @@
+{
+  "delay": <int>,
+  "domains": [
+    "<domainA>"
+  ],
+  "dynamodbTableName": "<tableName>",
+  "email": "<email>",
+  "outputLocation": "<outputLocation>",
+  "passphrase": "<passphrase>",
+  "prefix": "<prefix>",
+  "local": false,
+  "fortios": false,
+  "fortiosAccessToken": "<fortiosAccessToken>",
+  "fortiosAdminServerCert": false,
+  "fortiosBaseUrl": "<fortiosBaseUrl>",
+  "fortiosSslSshProfiles": [
+    "<profileName>"
+  ]
+}

@@ -14,8 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package certificate
 
-const (
-	version = "0.3"
-)
+type Certificate struct {
+	Name *string `json:"name"`
+}
+
+func (c *Certificate) String() string {
+	return *c.Name
+}

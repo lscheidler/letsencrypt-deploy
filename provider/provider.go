@@ -14,8 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package provider
 
-const (
-	version = "0.3"
+import (
+	"github.com/lscheidler/letsencrypt-lambda/account/certificate"
 )
+
+type Provider interface {
+	Deploy(cert *certificate.Certificate) bool
+}

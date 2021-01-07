@@ -12,9 +12,13 @@ If You want to deploy the client with terraform, You need following tools:
 ## Usage
 
 ```
-Usage of build/linux_amd64/letsencrypt-deploy (0.2):
+Usage of build/linux_amd64/letsencrypt-deploy (0.3):
   -H value
     	run hook after certificates has updated
+  -c string
+    	set config file (default "/etc/letsencrypt-deploy/config.json")
+  -configFile string
+    	set config file (default "/etc/letsencrypt-deploy/config.json")
   -d value
     	domains
   -delay int
@@ -27,16 +31,18 @@ Usage of build/linux_amd64/letsencrypt-deploy (0.2):
     	account email
   -email string
     	account email
+  -fortios
+    	deploy certificate on fortios firewall
+  -fortios-base-url string
+    	TODO
   -hook value
     	run hook after certificates has updated
+  -local
+    	deploy certificate on local machine
   -o string
     	output location for certificates (default "/etc/ssl/private")
   -outputLocation string
     	output location for certificates (default "/etc/ssl/private")
-  -p string
-    	passphrase file
-  -passphraseFile string
-    	passphrase file
   -prefix string
     	file prefix for letsencrypt certificates (default "letsencrypt.")
   -t string

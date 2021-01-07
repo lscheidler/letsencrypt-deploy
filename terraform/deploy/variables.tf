@@ -1,9 +1,9 @@
 ################################################################################
 # data.template_file.deploy
 ################################################################################
-variable "ansible_vault_file" {
-  type    = string
-  default = ""
+variable "ansible_vault_files" {
+  type    = list(string)
+  default = []
 }
 variable "ansible_vault_password_file" {
   type    = string
@@ -22,17 +22,19 @@ variable "create_systemd_timer" {
   default = true
 }
 
-variable "dependencies" {
-  type    = list
-  default = []
+variable "delay" {
+  type    = number
+  default = 0
 }
 
-variable "delay" {
+variable "domains" {
+  type = list
+}
+
+variable "dynamodb_table_name" {
   type    = string
   default = ""
 }
-
-variable "domains" {}
 
 variable "email" {}
 
@@ -44,6 +46,46 @@ variable "hooks" {
 variable "instance_ip" {}
 
 variable "output_location" {
+  type    = string
+  default = ""
+}
+
+variable "prefix" {
+  type    = string
+  default = ""
+}
+
+variable "local" {
+  type    = bool
+  default = true
+}
+
+variable "fortios" {
+  type    = bool
+  default = false
+}
+
+variable "fortios_admin_server_cert" {
+  type    = bool
+  default = true
+}
+
+variable "fortios_base_url" {
+  type    = string
+  default = ""
+}
+
+variable "fortios_ssl_ssh_profiles" {
+  type    = list
+  default = []
+}
+
+variable "fortios_access_token" {
+  type    = string
+  default = ""
+}
+
+variable "fortios_access_token_key" {
   type    = string
   default = ""
 }

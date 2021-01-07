@@ -32,7 +32,5 @@ release:
 	@echo "| [letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip](../../releases/download/$(GITHUB_VERSION)/letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip) | [letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip.asc](../../releases/download/$(GITHUB_VERSION)/letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip.asc) | $(shell sha512sum dist/letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip | cut -d " " -f 1) |"
 
 run:
-	#echo <secure_client_passphrase> > /tmp/deploy.passphrase
-	#./letsencrypt-deploy -email me@example.com -domain example.com,*.example.com -passphraseFile /tmp/deploy.passphrase -o certificates/
-	#rm -f /tmp/deploy.passphrase
+	#./letsencrypt-deploy -email me@example.com -domain example.com,*.example.com -configFile config.json -o certificates/
 	./run.sh

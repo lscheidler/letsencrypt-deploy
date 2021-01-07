@@ -34,7 +34,7 @@
         path: /usr/local/sbin/letsencrypt-deploy
         mode: "0755"
 
-    - name: create passphrase file
+    - name: create config file
       block:
         - set_fact:
             client_passphrase_value: "{{ lookup('vars', client_passphrase_key) }}"
@@ -47,12 +47,11 @@
             path: /etc/letsencrypt-deploy
             mode: "0500"
             state: directory
-        - name: create passphrase file
+        - name: create config file
           copy:
-            dest: /etc/letsencrypt-deploy/pass
+            dest: /etc/letsencrypt-deploy/config.json
             mode: "0400"
-            content: "{{ client_passphrase_value }}"
-      when: client_passphrase is defined or client_passphrase_key is defined
+            content: "{{ config | to_json }}"
 
     - name: create systemd timer
       block:
@@ -66,7 +65,7 @@
               
               [Service]
               Type=simple
-              ExecStart=/usr/local/sbin/letsencrypt-deploy -domain "{{ domains }}" -email "{{ email }}" -passphraseFile /etc/letsencrypt-deploy/pass {{ additional_letsencrypt_deploy_arguments }}
+              ExecStart=/usr/local/sbin/letsencrypt-deploy {{ additional_letsencrypt_deploy_arguments }}
               
               [Install]
               WantedBy=multi-user.target

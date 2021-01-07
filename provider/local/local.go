@@ -1,5 +1,5 @@
 /*
-Copyright 2020 Lars Eric Scheidler
+Copyright 2021 Lars Eric Scheidler
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package local
 
 import (
 	"bytes"
@@ -27,20 +27,49 @@ import (
 
 	"github.com/lscheidler/letsencrypt-lambda/account/certificate"
 	"github.com/lscheidler/letsencrypt-lambda/crypto"
+
+	"github.com/lscheidler/letsencrypt-deploy/provider"
 )
 
-func readLocalCertificate() []byte {
-	pemFilename := getFilename(nil, ".pem")
+type Local struct {
+	prefix         string
+	domains        []string
+	outputLocation string
+}
+
+func New(domains []string, outputLocation string, prefix string) *provider.Provider {
+	loc := &Local{
+		domains:        domains,
+		prefix:         prefix,
+		outputLocation: outputLocation,
+	}
+	prov := provider.Provider(loc)
+	return &prov
+}
+
+func (loc *Local) Deploy(cert *certificate.Certificate) bool {
+	if string(cert.Pem) != string(loc.readLocalCertificate()) {
+		loc.writeCertificate(cert)
+		loc.rewriteLinks(cert)
+		return true
+	} else {
+		log.Println("[local] Certificate already uptodate.")
+		return false
+	}
+}
+
+func (loc *Local) readLocalCertificate() []byte {
+	pemFilename := loc.getFilename(nil, ".pem")
 	if dat, err := ioutil.ReadFile(pemFilename); err == nil {
 		return dat
 	}
 	return nil
 }
 
-func writeCertificate(cert *certificate.Certificate) {
+func (loc *Local) writeCertificate(cert *certificate.Certificate) {
 	createdAt := cert.CreatedAt.Format("2006-01-02")
-	pemFilename := getFilename(&createdAt, ".pem")
-	keyFilename := getFilename(&createdAt, ".key")
+	pemFilename := loc.getFilename(&createdAt, ".pem")
+	keyFilename := loc.getFilename(&createdAt, ".key")
 
 	pemdata := cert.Pem
 	block, _ := pem.Decode(pemdata)
@@ -69,16 +98,26 @@ func writeCertificate(cert *certificate.Certificate) {
 	}
 }
 
-func rewriteLinks(cert *certificate.Certificate) {
+func (loc *Local) rewriteLinks(cert *certificate.Certificate) {
 	createdAt := cert.CreatedAt.Format("2006-01-02")
 
-	pemFilename := filepath.Base(getFilename(&createdAt, ".pem"))
-	pemSymlink := getFilename(nil, ".pem")
+	pemFilename := filepath.Base(loc.getFilename(&createdAt, ".pem"))
+	pemSymlink := loc.getFilename(nil, ".pem")
 	rewriteLink(pemFilename, pemSymlink)
 
-	keyFilename := filepath.Base(getFilename(&createdAt, ".key"))
-	keySymlink := getFilename(nil, ".key")
+	keyFilename := filepath.Base(loc.getFilename(&createdAt, ".key"))
+	keySymlink := loc.getFilename(nil, ".key")
 	rewriteLink(keyFilename, keySymlink)
+}
+
+func (loc *Local) getFilename(date *string, ext string) string {
+	filename := loc.prefix
+	if date != nil {
+		filename = filename + *date + "."
+	}
+	filename = filename + loc.domains[0] + ext
+
+	return filepath.Join(loc.outputLocation, filename)
 }
 
 func rewriteLink(source string, destination string) {
@@ -92,14 +131,4 @@ func rewriteLink(source string, destination string) {
 	if err := os.Symlink(source, destination); err != nil {
 		log.Println(err)
 	}
-}
-
-func getFilename(date *string, ext string) string {
-	filename := prefix
-	if date != nil {
-		filename = filename + *date + "."
-	}
-	filename = filename + domains[0] + ext
-
-	return filepath.Join(outputLocation, filename)
 }
