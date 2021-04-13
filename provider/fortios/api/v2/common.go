@@ -16,6 +16,7 @@ limitations under the License.
 
 package v2
 
+// ServerCert struct
 type ServerCert struct {
 	QOriginKey *string `json:"q_origin_key"`
 	Name       *string `json:"name"`

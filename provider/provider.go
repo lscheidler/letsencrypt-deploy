@@ -20,6 +20,7 @@ import (
 	"github.com/lscheidler/letsencrypt-lambda/account/certificate"
 )
 
+// Provider interface
 type Provider interface {
 	Deploy(cert *certificate.Certificate) bool
 }

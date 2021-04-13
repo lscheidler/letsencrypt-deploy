@@ -35,6 +35,6 @@ variable "aws_dynamodb_table_arn" {
 }
 
 variable "sns_topic" {
-  type    = list
+  type    = list(any)
   default = []
 }

@@ -23,10 +23,12 @@ import (
 	"github.com/lscheidler/letsencrypt-deploy/hook"
 )
 
+// Exec hook
 type Exec struct {
 	command *string
 }
 
+// New return exec hook struct
 func New(args string) *hook.Hook {
 	e := Exec{
 		command: &args,
@@ -35,6 +37,7 @@ func New(args string) *hook.Hook {
 	return &h
 }
 
+// Run hook
 func (e *Exec) Run() error {
 	out, err := exec.Command("sh", "-c", *e.command).Output()
 	if err != nil {
@@ -44,6 +47,7 @@ func (e *Exec) Run() error {
 	return nil
 }
 
+// String return command
 func (e *Exec) String() string {
 	return *e.command
 }

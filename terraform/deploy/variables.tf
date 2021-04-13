@@ -28,7 +28,7 @@ variable "delay" {
 }
 
 variable "domains" {
-  type = list
+  type = list(any)
 }
 
 variable "dynamodb_table_name" {
@@ -39,7 +39,7 @@ variable "dynamodb_table_name" {
 variable "email" {}
 
 variable "hooks" {
-  type    = list
+  type    = list(any)
   default = []
 }
 
@@ -53,6 +53,11 @@ variable "output_location" {
 variable "prefix" {
   type    = string
   default = ""
+}
+
+variable "start_systemd_service" {
+  type    = bool
+  default = true
 }
 
 variable "local" {
@@ -76,7 +81,7 @@ variable "fortios_base_url" {
 }
 
 variable "fortios_ssl_ssh_profiles" {
-  type    = list
+  type    = list(any)
   default = []
 }
 

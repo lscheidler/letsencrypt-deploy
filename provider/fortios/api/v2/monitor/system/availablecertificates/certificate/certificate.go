@@ -16,10 +16,12 @@ limitations under the License.
 
 package certificate
 
+// Certificate struct
 type Certificate struct {
 	Name *string `json:"name"`
 }
 
+// String return certificate name
 func (c *Certificate) String() string {
 	return *c.Name
 }

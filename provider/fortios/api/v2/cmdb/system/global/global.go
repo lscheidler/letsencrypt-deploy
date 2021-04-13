@@ -20,6 +20,7 @@ import (
 	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2"
 )
 
+// Global struct
 type Global struct {
 	Results *result `json:"results"`
 }

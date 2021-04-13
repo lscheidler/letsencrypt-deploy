@@ -16,6 +16,7 @@ limitations under the License.
 
 package hook
 
+// Hook interface
 type Hook interface {
 	Run() error
 	String() string

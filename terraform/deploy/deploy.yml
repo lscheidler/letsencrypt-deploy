@@ -94,3 +94,9 @@
             enabled: true
             state: started
       when: create_systemd_timer
+
+    - name: start service to deploy certificates
+      systemd:
+        name: letsencrypt-deploy.service
+        state: started
+      when: start_systemd_service

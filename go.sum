@@ -45,6 +45,7 @@ github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuy
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/aliyun/alibaba-cloud-sdk-go v1.61.112/go.mod h1:pUKYbK5JQ+1Dfxk80P0qxGqe5dkxDoabbZS7zOcouyA=
 github.com/apache/thrift v0.12.0/go.mod h1:cp2SuWMxlEZw2r+iP2GNCdIi4C1qmUzdZFSVb+bacwQ=
+github.com/aws/aws-lambda-go v1.13.3 h1:SuCy7H3NLyp+1Mrfp+m80jcbi9KYWAs9/BXwppwRDzY=
 github.com/aws/aws-lambda-go v1.13.3/go.mod h1:4UKl9IzQMoD+QF79YdCuzCwp8VbmG4VAQwij/eHl5CU=
 github.com/aws/aws-sdk-go v1.30.20 h1:ktsy2vodSZxz/arYqo7DlpkIeNohHL+4Rmjdo7YGtrE=
 github.com/aws/aws-sdk-go v1.30.20/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
@@ -167,6 +168,8 @@ github.com/linode/linodego v0.10.0/go.mod h1:cziNP7pbvE3mXIPneHj0oRY8L1WtGEIKlZ8
 github.com/liquidweb/liquidweb-go v1.6.0/go.mod h1:UDcVnAMDkZxpw4Y7NOHkqoeiGacVLEIG/i5J9cyixzQ=
 github.com/lscheidler/letsencrypt-lambda v0.0.0-20201117085946-84c735a0e9ea h1:kf3qmUihs+0KUdmIsqtuaTew+uYkahfhiWUVaSf5d8s=
 github.com/lscheidler/letsencrypt-lambda v0.0.0-20201117085946-84c735a0e9ea/go.mod h1:TI4RrtcSCGzddOt6sSuyJQ4n+/dYJeGBhDuKEIMdDp4=
+github.com/lscheidler/letsencrypt-lambda v0.1.0 h1:jHRIHkVHMuUv90AnXiyDbKDjL9aUPzPovrZBvH8eJso=
+github.com/lscheidler/letsencrypt-lambda v0.1.0/go.mod h1:TI4RrtcSCGzddOt6sSuyJQ4n+/dYJeGBhDuKEIMdDp4=
 github.com/mattn/go-isatty v0.0.3/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
 github.com/mattn/go-runewidth v0.0.2/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
 github.com/mattn/go-runewidth v0.0.4/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=

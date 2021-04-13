@@ -11,12 +11,13 @@ locals {
   letsencrypt_deploy_arguments_output_location = (var.output_location != "") ? "-o ${var.output_location}" : ""
 
   template_variables = {
-    config = local.letsencrypt_config,
-    create_systemd_timer = var.create_systemd_timer,
-    instance_ip                      = var.instance_ip,
-    letsencrypt_deploy_version       = var.letsencrypt_deploy_version,
+    config                           = local.letsencrypt_config
+    create_systemd_timer             = var.create_systemd_timer
+    instance_ip                      = var.instance_ip
+    letsencrypt_deploy_version       = var.letsencrypt_deploy_version
     letsencrypt_deploy_checksum_type = var.letsencrypt_deploy_checksum_type
     letsencrypt_deploy_checksum      = var.letsencrypt_deploy_checksum
+    start_systemd_service            = var.start_systemd_service
     additional_letsencrypt_deploy_arguments = join(" ",
       compact([
         local.letsencrypt_deploy_arguments_hook,

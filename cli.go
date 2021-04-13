@@ -29,6 +29,7 @@ import (
 	"github.com/lscheidler/letsencrypt-deploy/hook/exec"
 )
 
+// Hooks slice
 type Hooks []*hook.Hook
 
 // String is the method to format the flag's value, part of the flag.Value interface.
@@ -80,8 +81,8 @@ const (
 	emailUsage                  = "account email"
 	fortiosUsage                = "deploy certificate on fortios firewall"
 	fortiosDefaultVal           = false
-	fortiosBaseUrlUsage         = "fortios base url"
-	fortiosBaseUrlDefaultVal    = ""
+	fortiosBaseURLUsage         = "fortios base url"
+	fortiosBaseURLDefaultVal    = ""
 	localUsage                  = "deploy certificate on local machine"
 	localDefaultVal             = false
 	outputLocationDefaultVal    = "/etc/ssl/private"
@@ -135,8 +136,8 @@ hooks:
 	if fortiosDeployment := flag.Bool("fortios", fortiosDefaultVal, fortiosUsage); *fortiosDeployment != fortiosDefaultVal {
 		conf.Fortios = *fortiosDeployment
 	}
-	if fortiosBaseUrl := flag.String("fortios-base-url", fortiosBaseUrlDefaultVal, fortiosBaseUrlUsage); *fortiosBaseUrl != fortiosBaseUrlDefaultVal {
-		conf.FortiosBaseUrl = fortiosBaseUrl
+	if fortiosBaseURL := flag.String("fortios-base-url", fortiosBaseURLDefaultVal, fortiosBaseURLUsage); *fortiosBaseURL != fortiosBaseURLDefaultVal {
+		conf.FortiosBaseURL = fortiosBaseURL
 	}
 	if email := flag.String("email", emailDefaultVal, emailUsage); *email != emailDefaultVal {
 		conf.Email = email

@@ -1,3 +1,8 @@
+# v0.4 (2021-04-13)
+
+- [local] create output location, if it doesn't exists
+- golint
+
 # v0.3 (2021-01-07)
 
 - introduce config file

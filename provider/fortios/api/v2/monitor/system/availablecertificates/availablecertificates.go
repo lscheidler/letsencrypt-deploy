@@ -14,12 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package available_certificates
+package availablecertificates
 
 import (
-	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2/monitor/system/available_certificates/certificate"
+	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2/monitor/system/availablecertificates/certificate"
 )
 
+// AvailableCertificates struct
 type AvailableCertificates struct {
 	Results []*certificate.Certificate `json:"results"`
 	Vdom    *string                    `json:"vdom"`
@@ -31,6 +32,7 @@ type AvailableCertificates struct {
 	Build   int                        `json:"build"`
 }
 
+// Has return certificate, if available
 func (ac *AvailableCertificates) Has(name string) *certificate.Certificate {
 	for _, c := range ac.Results {
 		if *c.Name == name {

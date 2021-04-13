@@ -21,6 +21,7 @@ import (
 	"strings"
 )
 
+// Domains list
 type Domains []*string
 
 // String is the method to format the flag's value, part of the flag.Value interface.
@@ -42,6 +43,7 @@ func (i *Domains) Set(value string) error {
 	return nil
 }
 
+// Values returns a slice with the domains as string
 func (i *Domains) Values() []string {
 	var domains []string
 	for _, v := range []*string(*i) {

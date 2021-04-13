@@ -35,17 +35,19 @@ import (
 
 	"github.com/lscheidler/letsencrypt-deploy/config"
 	"github.com/lscheidler/letsencrypt-deploy/provider"
-	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2/cmdb/firewall/ssl_ssh_profile"
+	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2/cmdb/firewall/sslsshprofile"
 	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2/cmdb/system/global"
-	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2/monitor/system/available_certificates"
+	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2/monitor/system/availablecertificates"
 )
 
+// FortiOS provider struct
 type FortiOS struct {
 	client  *http.Client
 	domains []string
 	conf    *config.Config
 }
 
+// New return fortios provider struct
 func New(domains []string, conf *config.Config) *provider.Provider {
 	f := &FortiOS{
 		client:  &http.Client{},
@@ -56,6 +58,7 @@ func New(domains []string, conf *config.Config) *provider.Provider {
 	return &prov
 }
 
+// Deploy certificate to fortios
 func (f *FortiOS) Deploy(cert *certificate.Certificate) bool {
 	if ac, err := f.availableCertificates(); err != nil {
 		log.Fatal(err)
@@ -94,15 +97,15 @@ func (f *FortiOS) Deploy(cert *certificate.Certificate) bool {
 		// deep inspection:
 		//   /api/v2/cmdb/firewall/ssl-ssh-profile/<profile-name>?datasource=1
 		//   PUT {"server-cert": cert_name}
-		for _, profile := range f.conf.FortiosSslSshProfiles {
-			if serv, err := f.getSslSshProfileServerCert(profile); err != nil {
+		for _, profile := range f.conf.FortiosSslSSHProfiles {
+			if serv, err := f.getSslSSHProfileServerCert(profile); err != nil {
 				log.Println(err)
-				f.setSslSshProfileServerCert(profile, name)
+				f.setSslSSHProfileServerCert(profile, name)
 			} else {
 				if *serv.Results[0].ServerCert.Name != name {
-					f.setSslSshProfileServerCert(profile, name)
+					f.setSslSSHProfileServerCert(profile, name)
 				} else {
-					log.Printf("[fortios:%s] SslSshProfile Certificate already uptodate.", *profile)
+					log.Printf("[fortios:%s] SslSSHProfile Certificate already uptodate.", *profile)
 				}
 			}
 		}
@@ -110,24 +113,25 @@ func (f *FortiOS) Deploy(cert *certificate.Certificate) bool {
 	return false
 }
 
-func (f *FortiOS) availableCertificates() (*available_certificates.AvailableCertificates, error) {
-	u, _ := url.Parse(*f.conf.FortiosBaseUrl)
+func (f *FortiOS) availableCertificates() (*availablecertificates.AvailableCertificates, error) {
+	u, _ := url.Parse(*f.conf.FortiosBaseURL)
 	u.Path = path.Join(u.Path, "/api/v2/monitor/system/available-certificates")
 
-	if body, err := f.newRequest("GET", u.String(), "?scope=vdom&with_remote=1&with_ca=1&with_crl=1&access_token="+*f.conf.FortiosAccessToken, nil); err != nil {
+	body, err := f.newRequest("GET", u.String(), "?scope=vdom&with_remote=1&with_ca=1&with_crl=1&access_token="+*f.conf.FortiosAccessToken, nil)
+	if err != nil {
 		return nil, err
-	} else {
-		var apiResp available_certificates.AvailableCertificates
-		if err := json.Unmarshal(body, &apiResp); err != nil {
-			log.Println("Unmarshal failed", string(body))
-			return nil, err
-		}
-		return &apiResp, nil
 	}
+
+	var apiResp availablecertificates.AvailableCertificates
+	if err := json.Unmarshal(body, &apiResp); err != nil {
+		log.Println("Unmarshal failed", string(body))
+		return nil, err
+	}
+	return &apiResp, nil
 }
 
 func (f *FortiOS) insertCertificate(name string, pem []byte, key []byte) error {
-	u, _ := url.Parse(*f.conf.FortiosBaseUrl)
+	u, _ := url.Parse(*f.conf.FortiosBaseURL)
 	u.Path = path.Join(u.Path, "/api/v2/monitor/vpn-certificate/local/import")
 
 	content := map[string]string{
@@ -145,23 +149,24 @@ func (f *FortiOS) insertCertificate(name string, pem []byte, key []byte) error {
 
 func (f *FortiOS) getAdminServerCert() (*global.Global, error) {
 	// /api/v2/cmdb/system/global?datasource=1&with_meta=1
-	u, _ := url.Parse(*f.conf.FortiosBaseUrl)
+	u, _ := url.Parse(*f.conf.FortiosBaseURL)
 	u.Path = path.Join(u.Path, "/api/v2/cmdb/system/global")
 
-	if body, err := f.newRequest("GET", u.String(), "?datasource=1&with_meta=1&access_token="+*f.conf.FortiosAccessToken, nil); err != nil {
+	body, err := f.newRequest("GET", u.String(), "?datasource=1&with_meta=1&access_token="+*f.conf.FortiosAccessToken, nil)
+	if err != nil {
 		return nil, err
-	} else {
-		var apiResp global.Global
-		if err := json.Unmarshal(body, &apiResp); err != nil {
-			log.Println("Unmarshal failed", string(body))
-			return nil, err
-		}
-		return &apiResp, nil
 	}
+
+	var apiResp global.Global
+	if err := json.Unmarshal(body, &apiResp); err != nil {
+		log.Println("Unmarshal failed", string(body))
+		return nil, err
+	}
+	return &apiResp, nil
 }
 
 func (f *FortiOS) setAdminServerCert(name string) error {
-	u, _ := url.Parse(*f.conf.FortiosBaseUrl)
+	u, _ := url.Parse(*f.conf.FortiosBaseURL)
 	u.Path = path.Join(u.Path, "/api/v2/cmdb/system/global")
 
 	content := map[string]string{
@@ -172,25 +177,26 @@ func (f *FortiOS) setAdminServerCert(name string) error {
 	return err
 }
 
-func (f *FortiOS) getSslSshProfileServerCert(profname *string) (*ssl_ssh_profile.SslSshProfile, error) {
+func (f *FortiOS) getSslSSHProfileServerCert(profname *string) (*sslsshprofile.SslSSHProfile, error) {
 	// /api/v2/cmdb/firewall/ssl-ssh-profile/<profname>?datasource=1
-	u, _ := url.Parse(*f.conf.FortiosBaseUrl)
+	u, _ := url.Parse(*f.conf.FortiosBaseURL)
 	u.Path = path.Join(u.Path, "/api/v2/cmdb/firewall/ssl-ssh-profile", *profname)
 
-	if body, err := f.newRequest("GET", u.String(), "?datasource=1&access_token="+*f.conf.FortiosAccessToken, nil); err != nil {
+	body, err := f.newRequest("GET", u.String(), "?datasource=1&access_token="+*f.conf.FortiosAccessToken, nil)
+	if err != nil {
 		return nil, err
-	} else {
-		var apiResp ssl_ssh_profile.SslSshProfile
-		if err := json.Unmarshal(body, &apiResp); err != nil {
-			log.Println("Unmarshal failed", string(body))
-			return nil, err
-		}
-		return &apiResp, nil
 	}
+
+	var apiResp sslsshprofile.SslSSHProfile
+	if err := json.Unmarshal(body, &apiResp); err != nil {
+		log.Println("Unmarshal failed", string(body))
+		return nil, err
+	}
+	return &apiResp, nil
 }
 
-func (f *FortiOS) setSslSshProfileServerCert(profname *string, certname string) error {
-	u, _ := url.Parse(*f.conf.FortiosBaseUrl)
+func (f *FortiOS) setSslSSHProfileServerCert(profname *string, certname string) error {
+	u, _ := url.Parse(*f.conf.FortiosBaseURL)
 	u.Path = path.Join(u.Path, "/api/v2/cmdb/firewall/ssl-ssh-profile/"+*profname)
 
 	content := map[string]string{
@@ -225,11 +231,11 @@ func (f *FortiOS) newRequest(method string, url string, requestParameter string,
 	var body io.Reader
 
 	if content != nil {
-		if contentJson, err := json.Marshal(content); err != nil {
+		contentJSON, err := json.Marshal(content)
+		if err != nil {
 			return nil, err
-		} else {
-			body = bytes.NewBuffer(contentJson)
 		}
+		body = bytes.NewBuffer(contentJSON)
 	}
 
 	req, err := http.NewRequest(method, url+requestParameter, body)
@@ -238,18 +244,19 @@ func (f *FortiOS) newRequest(method string, url string, requestParameter string,
 	}
 	req.Header.Add("Content-Type", "application/json")
 
-	if resp, err := f.client.Do(req); err != nil {
+	resp, err := f.client.Do(req)
+	if err != nil {
 		return nil, err
-	} else {
-		if body, err := ioutil.ReadAll(resp.Body); err != nil {
-			return nil, err
-		} else {
-			if resp.StatusCode == 200 {
-				//log.Println(string(body))
-				return body, nil
-			} else {
-				return nil, fmt.Errorf("Request %s failed with %d: %s", url, resp.StatusCode, string(body))
-			}
-		}
 	}
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode == 200 {
+		//log.Println(string(respBody))
+		return respBody, nil
+	}
+
+	return nil, fmt.Errorf("Request %s failed with %d: %s", url, resp.StatusCode, string(respBody))
 }

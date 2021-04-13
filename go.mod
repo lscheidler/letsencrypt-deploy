@@ -6,5 +6,5 @@ go 1.14
 
 require (
 	github.com/aws/aws-sdk-go v1.30.20
-	github.com/lscheidler/letsencrypt-lambda v0.0.0-20201117085946-84c735a0e9ea
+	github.com/lscheidler/letsencrypt-lambda v0.1.0
 )

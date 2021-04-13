@@ -17,5 +17,5 @@ limitations under the License.
 package main
 
 const (
-	version = "0.3"
+	version = "0.4"
 )

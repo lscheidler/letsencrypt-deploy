@@ -6,6 +6,9 @@ all: build
 fmt:
 	go fmt $(shell find -name \*.go |xargs dirname|sort -u)
 
+lint:
+	golint $(shell find -name \*.go |xargs dirname|sort -u)
+
 vet:
 	go vet $(shell find -name \*.go |xargs dirname|sort -u)
 
@@ -25,6 +28,7 @@ clean:
 
 sign:
 	gpg --armor --sign --detach-sig dist/letsencrypt-deploy_$(GITHUB_VERSION)_linux_amd64.zip
+	gpg --armor --sign --detach-sig dist/letsencrypt-deploy_$(GITHUB_VERSION)_SHA512SUM.txt
 
 release:
 	@echo "| File | Sign  | SHA512SUM |"

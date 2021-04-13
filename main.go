@@ -42,14 +42,14 @@ func main() {
 	conf := config.NewWithDefaults()
 	conf.Load(configFile)
 	conf.Merge(args)
-	if conf.Fortios && conf.FortiosBaseUrl == nil {
-		log.Fatal("Option -fortiosBaseUrl or config value fortiosBaseUrl must be set, when -fortios is set.")
+	if conf.Fortios && conf.FortiosBaseURL == nil {
+		log.Fatal("Option -fortiosBaseURL or config value fortiosBaseURL must be set, when -fortios is set.")
 	}
 
 	domains := conf.Domains.Values()
 
-	MustSetString(conf.Email, "Option -email or config option must be set.")
-	MustSetStringSlice(conf.Domains, "Option -domains or config option must be set.")
+	mustSetString(conf.Email, "Option -email or config option must be set.")
+	mustSetStringSlice(conf.Domains, "Option -domains or config option must be set.")
 
 	account := account.New(conf.Email, domains, nil)
 	account.ClientPassphrase = conf.Passphrase
@@ -80,13 +80,13 @@ func main() {
 	}
 }
 
-func MustSetString(val *string, message string) {
+func mustSetString(val *string, message string) {
 	if val == nil || len(*val) == 0 {
 		log.Fatal(message)
 	}
 }
 
-func MustSetStringSlice(val []*string, message string) {
+func mustSetStringSlice(val []*string, message string) {
 	if len(val) == 0 {
 		log.Fatal(message)
 	}

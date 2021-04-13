@@ -31,12 +31,14 @@ import (
 	"github.com/lscheidler/letsencrypt-deploy/provider"
 )
 
+// Local provider struct
 type Local struct {
 	prefix         string
 	domains        []string
 	outputLocation string
 }
 
+// New return local provider
 func New(domains []string, outputLocation string, prefix string) *provider.Provider {
 	loc := &Local{
 		domains:        domains,
@@ -47,14 +49,25 @@ func New(domains []string, outputLocation string, prefix string) *provider.Provi
 	return &prov
 }
 
+// Deploy certificate
 func (loc *Local) Deploy(cert *certificate.Certificate) bool {
+	loc.createOutputLocation()
+
 	if string(cert.Pem) != string(loc.readLocalCertificate()) {
 		loc.writeCertificate(cert)
 		loc.rewriteLinks(cert)
 		return true
-	} else {
-		log.Println("[local] Certificate already uptodate.")
-		return false
+	}
+	log.Println("[local] Certificate already uptodate.")
+	return false
+}
+
+func (loc *Local) createOutputLocation() {
+	if _, err := os.Stat(loc.outputLocation); os.IsNotExist(err) {
+		log.Println("[local] Creating output location, because it doesn't exist.")
+		if err := os.MkdirAll(loc.outputLocation, 0600); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

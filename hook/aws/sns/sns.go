@@ -27,12 +27,14 @@ import (
 	"github.com/lscheidler/letsencrypt-deploy/hook"
 )
 
+// Sns struct
 type Sns struct {
 	topic   *string
 	subject *string
 	message *string
 }
 
+// New returns new sns hook struct
 func New(args []string) *hook.Hook {
 	e := Sns{
 		topic: &args[0],
@@ -50,6 +52,7 @@ func New(args []string) *hook.Hook {
 	return &h
 }
 
+// Run hook
 func (e *Sns) Run() error {
 	sess, conf := awshelper.GetAwsSession()
 	svc := sns.New(sess, conf)
@@ -66,6 +69,7 @@ func (e *Sns) Run() error {
 	return nil
 }
 
+// String return topic
 func (e *Sns) String() string {
 	return *e.topic
 }
@@ -73,27 +77,28 @@ func (e *Sns) String() string {
 func (e *Sns) getSubject() *string {
 	if e.subject != nil {
 		return e.subject
-	} else {
-		subject := "[" + e.getHostname() + "] Updated letsencrypt certificates"
-		return &subject
 	}
+
+	subject := "[" + e.getHostname() + "] Updated letsencrypt certificates"
+	return &subject
 }
 
 func (e *Sns) getMessage() *string {
 	if e.message != nil {
 		return e.message
-	} else {
-		message := `Host: ` + e.getHostname() + `
+	}
+
+	message := `Host: ` + e.getHostname() + `
 
 Updated letsencrypt certificates`
-		return &message
-	}
+	return &message
 }
 
 func (e *Sns) getHostname() string {
-	if hostname, err := os.Hostname(); err != nil {
+	hostname, err := os.Hostname()
+	if err != nil {
 		return "<unknown>"
-	} else {
-		return hostname
 	}
+
+	return hostname
 }
