@@ -43,6 +43,11 @@ variable "hooks" {
   default = []
 }
 
+variable "bastion_host" {
+  type    = string
+  default = ""
+}
+
 variable "instance_ip" {}
 
 variable "output_location" {

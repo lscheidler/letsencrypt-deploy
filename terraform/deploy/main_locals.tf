@@ -1,4 +1,5 @@
 locals {
+  ansible_args_bastion_host        = (var.bastion_host != "") ? "--ssh-common-args='-o ProxyCommand=\"ssh -W %h:%p ${var.bastion_host} -p 22 -o CheckHostIP=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no\" -o CheckHostIP=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'" : ""
   ansible_args_vault_password_file = (var.ansible_vault_password_file != "") ? "--vault-password-file ${var.ansible_vault_password_file}" : ""
   ansible_args_vault_files         = join(" ", formatlist("-e @%s", var.ansible_vault_files))
   ansible_args = join(" ", [
@@ -11,6 +12,7 @@ locals {
   letsencrypt_deploy_arguments_output_location = (var.output_location != "") ? "-o ${var.output_location}" : ""
 
   template_variables = {
+    bastion_host                     = var.bastion_host
     config                           = local.letsencrypt_config
     create_systemd_timer             = var.create_systemd_timer
     instance_ip                      = var.instance_ip

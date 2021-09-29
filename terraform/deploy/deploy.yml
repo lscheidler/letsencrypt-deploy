@@ -3,12 +3,18 @@
   connection: local
   gather_facts: false
   tasks:
+    - set_fact:
+        my_ssh_common_args: "-o CheckHostIP=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+      when: bastion_host is undefined
+    - set_fact:
+        my_ssh_common_args: "-o ProxyCommand=\"ssh -W %h:%p {{ bastion_host }} -p 22 -o CheckHostIP=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no\" -o CheckHostIP=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+      when: bastion_host is defined
     - block:
         - name: add host to inventory
           add_host:
             hostname: "{{ instance_ip }}"
             ansible_ssh_port: "{{ instance_port | default(omit) }}"
-            ansible_ssh_common_args: "-o CheckHostIP=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+            ansible_ssh_common_args: "{{ my_ssh_common_args }}"
             groups: 
               - deploy
 
