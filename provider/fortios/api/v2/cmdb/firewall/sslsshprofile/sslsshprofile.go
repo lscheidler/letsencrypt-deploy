@@ -26,6 +26,22 @@ type SslSSHProfile struct {
 }
 
 type result struct {
+	Name       *string          `json:"name"`
+	ServerCert []*v2.ServerCert `json:"server-cert"`
+}
+
+// SslSSHProfileInput struct
+type SslSSHProfileInput struct {
+	Name       *string          `json:"name"`
+	ServerCert []*v2.ServerCert `json:"server-cert"`
+}
+
+// SslSSHProfileBeforeV7 struct
+type SslSSHProfileBeforeV7 struct {
+	Results []*resultBeforeV7 `json:"results"`
+}
+
+type resultBeforeV7 struct {
 	Name       *string        `json:"name"`
 	ServerCert *v2.ServerCert `json:"server-cert"`
 }

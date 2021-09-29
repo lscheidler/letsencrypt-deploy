@@ -35,9 +35,11 @@ import (
 
 	"github.com/lscheidler/letsencrypt-deploy/config"
 	"github.com/lscheidler/letsencrypt-deploy/provider"
+	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2"
 	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2/cmdb/firewall/sslsshprofile"
 	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2/cmdb/system/global"
 	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2/monitor/system/availablecertificates"
+	"github.com/lscheidler/letsencrypt-deploy/provider/fortios/api/v2/monitor/system/firmware"
 )
 
 // FortiOS provider struct
@@ -78,6 +80,13 @@ func (f *FortiOS) Deploy(cert *certificate.Certificate) bool {
 			log.Println("[fortios] Certificate already uptodate.")
 		}
 
+		// Firmware:
+		//   /api/v2/monitor/system/firmware
+		firmwareVersion, err := f.getFirmwareVersion()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		// Admin-Interface:
 		//   /api/v2/cmdb/system/global?access_token=
 		//   PUT {"admin-server-cert": cert_name}
@@ -98,14 +107,27 @@ func (f *FortiOS) Deploy(cert *certificate.Certificate) bool {
 		//   /api/v2/cmdb/firewall/ssl-ssh-profile/<profile-name>?datasource=1
 		//   PUT {"server-cert": cert_name}
 		for _, profile := range f.conf.FortiosSslSSHProfiles {
-			if serv, err := f.getSslSSHProfileServerCert(profile); err != nil {
-				log.Println(err)
-				f.setSslSSHProfileServerCert(profile, name)
+			if firmwareVersion.Result.Current.Major < 7 {
+				if serv, err := f.getSslSSHProfileServerCertBeforeV7(profile); err != nil {
+					log.Println(err)
+					f.setSslSSHProfileServerCertBeforeV7(profile, name)
+				} else {
+					if *serv.Results[0].ServerCert.Name != name {
+						f.setSslSSHProfileServerCertBeforeV7(profile, name)
+					} else {
+						log.Printf("[fortios:%s] SslSSHProfile Certificate already uptodate.", *profile)
+					}
+				}
 			} else {
-				if *serv.Results[0].ServerCert.Name != name {
+				if serv, err := f.getSslSSHProfileServerCert(profile); err != nil {
+					log.Println(err)
 					f.setSslSSHProfileServerCert(profile, name)
 				} else {
-					log.Printf("[fortios:%s] SslSSHProfile Certificate already uptodate.", *profile)
+					if *serv.Results[0].ServerCert[0].Name != name {
+						f.setSslSSHProfileServerCert(profile, name)
+					} else {
+						log.Printf("[fortios:%s] SslSSHProfile Certificate already uptodate.", *profile)
+					}
 				}
 			}
 		}
@@ -123,6 +145,24 @@ func (f *FortiOS) availableCertificates() (*availablecertificates.AvailableCerti
 	}
 
 	var apiResp availablecertificates.AvailableCertificates
+	if err := json.Unmarshal(body, &apiResp); err != nil {
+		log.Println("Unmarshal failed", string(body))
+		return nil, err
+	}
+	return &apiResp, nil
+}
+
+func (f *FortiOS) getFirmwareVersion() (*firmware.Firmware, error) {
+	//   /api/v2/monitor/system/firmware
+	u, _ := url.Parse(*f.conf.FortiosBaseURL)
+	u.Path = path.Join(u.Path, "/api/v2/monitor/system/firmware")
+
+	body, err := f.newRequest("GET", u.String(), "?datasource=1&with_meta=1&access_token="+*f.conf.FortiosAccessToken, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var apiResp firmware.Firmware
 	if err := json.Unmarshal(body, &apiResp); err != nil {
 		log.Println("Unmarshal failed", string(body))
 		return nil, err
@@ -177,6 +217,24 @@ func (f *FortiOS) setAdminServerCert(name string) error {
 	return err
 }
 
+func (f *FortiOS) getSslSSHProfileServerCertBeforeV7(profname *string) (*sslsshprofile.SslSSHProfileBeforeV7, error) {
+	// /api/v2/cmdb/firewall/ssl-ssh-profile/<profname>?datasource=1
+	u, _ := url.Parse(*f.conf.FortiosBaseURL)
+	u.Path = path.Join(u.Path, "/api/v2/cmdb/firewall/ssl-ssh-profile", *profname)
+
+	body, err := f.newRequest("GET", u.String(), "?datasource=1&access_token="+*f.conf.FortiosAccessToken, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var apiResp sslsshprofile.SslSSHProfileBeforeV7
+	if err := json.Unmarshal(body, &apiResp); err != nil {
+		log.Println("Unmarshal failed", string(body))
+		return nil, err
+	}
+	return &apiResp, nil
+}
+
 func (f *FortiOS) getSslSSHProfileServerCert(profname *string) (*sslsshprofile.SslSSHProfile, error) {
 	// /api/v2/cmdb/firewall/ssl-ssh-profile/<profname>?datasource=1
 	u, _ := url.Parse(*f.conf.FortiosBaseURL)
@@ -196,6 +254,23 @@ func (f *FortiOS) getSslSSHProfileServerCert(profname *string) (*sslsshprofile.S
 }
 
 func (f *FortiOS) setSslSSHProfileServerCert(profname *string, certname string) error {
+	u, _ := url.Parse(*f.conf.FortiosBaseURL)
+	u.Path = path.Join(u.Path, "/api/v2/cmdb/firewall/ssl-ssh-profile/"+*profname)
+
+	content := sslsshprofile.SslSSHProfileInput{
+		Name: profname,
+		ServerCert: []*v2.ServerCert{
+			&v2.ServerCert{
+				Name: &certname,
+			},
+		},
+	}
+
+	_, err := f.newRequest("PUT", u.String(), "?datasource=1&access_token="+*f.conf.FortiosAccessToken, content)
+	return err
+}
+
+func (f *FortiOS) setSslSSHProfileServerCertBeforeV7(profname *string, certname string) error {
 	u, _ := url.Parse(*f.conf.FortiosBaseURL)
 	u.Path = path.Join(u.Path, "/api/v2/cmdb/firewall/ssl-ssh-profile/"+*profname)
 
@@ -227,7 +302,7 @@ func getPrivateKey(pemdata []byte) ([]byte, error) {
 	return privpem.Bytes(), nil
 }
 
-func (f *FortiOS) newRequest(method string, url string, requestParameter string, content map[string]string) ([]byte, error) {
+func (f *FortiOS) newRequest(method string, url string, requestParameter string, content interface{}) ([]byte, error) {
 	var body io.Reader
 
 	if content != nil {
