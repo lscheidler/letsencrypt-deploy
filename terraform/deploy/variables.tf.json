@@ -1,13 +1,13 @@
 {
   "variable": {
     "letsencrypt_deploy_version": {
-      "default": "0.4"
+      "default": "0.5"
     },
     "letsencrypt_deploy_checksum_type": {
       "default": "sha512"
     },
     "letsencrypt_deploy_checksum": {
-      "default": "36c1e84cd6d7ca423adf3745e07951fc54c3b30394dab954cf5e5911c886f76b6d379f78ec10e67fa8a46612ffc0e476fdeb6d6f6011a24a4c9eefaa210607a4"
+      "default": "8baa97d220c8716505296e9ecd65691ba3805f67adefa54fa653c7b37f88c104bcd27fa03d3707ed738c2dbc50c3ee575e50e55029ca5b64d271308b0e665d6f"
     }
   }
 }
